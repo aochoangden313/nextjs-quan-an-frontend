@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import ClientComponent from "./ClientComponent";
 
 export default function Home() {
   return (
@@ -13,7 +14,10 @@ export default function Home() {
           height={20}
           priority
         />
-        <Button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Click meeeee!!</Button>
+        <Button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Click meeeee!!
+        </Button>
+        <ClientComponent></ClientComponent>
         <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
           <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
             To get started, edit the page.tsx file.
