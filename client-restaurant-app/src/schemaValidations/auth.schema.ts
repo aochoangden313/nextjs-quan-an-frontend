@@ -1,4 +1,4 @@
-import { RoleValues } from "@/constants/type";
+import { RoleValues } from "@/src/constants/type";
 import z from "zod";
 
 export const LoginBody = z

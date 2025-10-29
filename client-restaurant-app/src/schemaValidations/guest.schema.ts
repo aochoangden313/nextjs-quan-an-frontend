@@ -1,5 +1,5 @@
-import { DishStatusValues, RoleValues } from "@/constants/type";
-import { AccountSchema } from "@/schemaValidations/account.schema";
+import { DishStatusValues, RoleValues } from "@/src/constants/type";
+import { AccountSchema } from "@/src/schemaValidations/account.schema";
 import z from "zod";
 
 export const GuestLoginBody = z
