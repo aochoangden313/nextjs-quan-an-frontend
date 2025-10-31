@@ -13,15 +13,21 @@ import Link from "next/link";
 import { useLogoutMutation } from "@/src/queries/useAuth";
 import { useRouter } from "next/navigation";
 import { handleErrorApi } from "@/src/lib/utils";
-
-const account = {
-  name: "Nguyễn Văn A",
-  avatar: "https://i.pravatar.cc/150",
-};
+import { useAccountProfile } from "@/src/queries/useAccount";
 
 export default function DropdownAvatar() {
   const logoutMutation = useLogoutMutation();
   const router = useRouter();
+  const { data } = useAccountProfile();
+  const account = (data as any)?.payload?.data ?? data;
+  const initials = account?.name
+    ? account.name
+        .split(" ")
+        .map((n: string) => n[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase()
+    : "US";
   const logout = async () => {
     if (logoutMutation.isPending) return;
     try {
@@ -43,15 +49,16 @@ export default function DropdownAvatar() {
           className="overflow-hidden rounded-full"
         >
           <Avatar>
-            <AvatarImage src={account.avatar ?? undefined} alt={account.name} />
-            <AvatarFallback>
-              {account.name.slice(0, 2).toUpperCase()}
-            </AvatarFallback>
+            <AvatarImage
+              src={account?.avatar ?? undefined}
+              alt={account?.name ?? "User avatar"}
+            />
+            <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel>{account.name}</DropdownMenuLabel>
+        <DropdownMenuLabel>{account?.name}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link href={"/manage/setting"} className="cursor-pointer">
