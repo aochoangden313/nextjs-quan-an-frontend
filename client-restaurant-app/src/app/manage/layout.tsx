@@ -1,3 +1,4 @@
+"use client";
 import DarkModeToggle from "@/src/components/dark-mode-toggle";
 import DropdownAvatar from "@/src/app/manage/dropdown-avatar";
 import NavLinks from "@/src/app/manage/nav-links";
