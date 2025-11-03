@@ -1,4 +1,4 @@
-import { RoleValues } from "@/src/constants/type";
+import { Role, RoleValues } from "@/src/constants/type";
 import z from "zod";
 
 export const LoginBody = z
@@ -18,7 +18,8 @@ export const LoginRes = z.object({
       id: z.number(),
       name: z.string(),
       email: z.string(),
-      role: z.enum(RoleValues),
+      role: z.enum([Role.Owner, Role.Employee]),
+      avatar: z.string().nullable(),
     }),
   }),
   message: z.string(),
@@ -51,3 +52,9 @@ export const LogoutBody = z
   .strict();
 
 export type LogoutBodyType = z.TypeOf<typeof LogoutBody>;
+
+export const LoginGoogleQuery = z.object({
+  code: z.string(),
+});
+
+export type LoginGoogleQueryType = z.TypeOf<typeof LoginGoogleQuery>;
