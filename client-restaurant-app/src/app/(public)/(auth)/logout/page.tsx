@@ -1,6 +1,9 @@
 "use client";
 
-import { getRefreshTokenFromLocalStorage } from "@/src/lib/utils";
+import {
+  getAccessTokenFromLocalStorage,
+  getRefreshTokenFromLocalStorage,
+} from "@/src/lib/utils";
 import { useLogoutMutation } from "@/src/queries/useAuth";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef } from "react";
@@ -16,8 +19,9 @@ function LogoutPageContent() {
   const router = useRouter();
   // Hook để đọc tham số (query params) từ URL
   const searchParams = useSearchParams();
-  // Lấy refresh token từ URL (được middleware đính kèm)
+  // Lấy access/ refresh token từ URL (được middleware đính kèm)
   const refreshTokenFromUrl = searchParams.get("refreshToken");
+  const accessTokenFromUrl = searchParams.get("accessToken");
 
   // Dùng useRef làm "cờ" (flag) để ngăn useEffect chạy 2 lần (do React StrictMode)
   const ref = useRef<any>(null);
@@ -28,9 +32,12 @@ function LogoutPageContent() {
     if (
       // 1. Nếu 'cờ' đã được đặt (đang chạy rồi), thì dừng lại
       ref.current ||
-      // 2. (Bảo mật) Nếu token trên URL không khớp với token trong Local Storage,
+      // 2. (Bảo mật) Nếu access/refresh token trên URL không khớp với token trong Local Storage,
       //    đây là truy cập không hợp lệ (ví dụ: gõ thẳng /logout) => dừng lại.
-      refreshTokenFromUrl !== getRefreshTokenFromLocalStorage()
+      (accessTokenFromUrl &&
+        accessTokenFromUrl !== getAccessTokenFromLocalStorage()) ||
+      (refreshTokenFromUrl &&
+        refreshTokenFromUrl !== getRefreshTokenFromLocalStorage())
     ) {
       return;
     }
@@ -51,7 +58,7 @@ function LogoutPageContent() {
     });
 
     // Các dependencies của useEffect
-  }, [mutateAsync, router, refreshTokenFromUrl]);
+  }, [mutateAsync, router, refreshTokenFromUrl, accessTokenFromUrl]);
 
   // Hiển thị nội dung giữ chỗ trong khi xử lý
   return <div>Log out....</div>;
