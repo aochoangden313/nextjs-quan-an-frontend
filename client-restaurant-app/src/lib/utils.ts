@@ -58,6 +58,8 @@ export const setAccessTokenToLocalStorage = (value: string) =>
 
 export const setRefreshTokenToLocalStorage = (value: string) =>
   isBrowser && localStorage.setItem("refreshToken", value);
+
+// ham nay da co tu truoc
 export const removeTokensFromLocalStorage = () => {
   isBrowser && localStorage.removeItem("accessToken");
   isBrowser && localStorage.removeItem("refreshToken");
@@ -85,8 +87,11 @@ export const checkAndRefreshToken = async (param?: {
   // Thời điểm hết hạn của token tính theo epoch time (s)
   // Còn khi các bnaj dùng cú pháp New Date().getTime() thì nó sẽ trả về epoch time tính theo mili giây ms
   const now = Math.round(new Date().getTime() / 1000);
-  // Trường hợp refresh Token hết hạn thì ko xử lý nữa
-  if (decodedRefreshToken.exp < now) return;
+  // Trường hợp refresh Token hết hạn thì cho logout
+  if (decodedRefreshToken.exp < now) {
+    removeTokensFromLocalStorage();
+    return param?.onError && param.onError();
+  }
   // Ví dụ access token của chúng ta có thời gian hết hạn là 10s thì mình sẽ kiểm tra nếu còn 1/3 thời gian (3s) thì mình sẽ cho refresh token lại
   // Thời gian còn lại sẽ tính dựa trên công thức: decodedAccessToken.exp - now
   //  Thời gian hết hạn của access token dựa trên công thức: decodedAccessToken.exp - decodedAccessToken.iat
