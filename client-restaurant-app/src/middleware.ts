@@ -27,8 +27,10 @@ export function middleware(request: NextRequest) {
     !accessToken &&
     refreshToken
   ) {
-    const url = new URL("/logout", request.url);
+    // Redirect về trang refresh token để tự động lấy access token mới
+    const url = new URL("/refresh-token", request.url);
     url.searchParams.set("refreshToken", refreshToken);
+    url.searchParams.set("redirect", pathname);
     return NextResponse.redirect(url);
   }
   return NextResponse.next();

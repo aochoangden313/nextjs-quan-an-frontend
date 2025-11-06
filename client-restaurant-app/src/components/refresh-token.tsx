@@ -1,13 +1,6 @@
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
-import jwt from "jsonwebtoken";
-import {
-  getAccessTokenFromLocalStorage,
-  getRefreshTokenFromLocalStorage,
-  setAccessTokenToLocalStorage,
-  setRefreshTokenToLocalStorage,
-} from "../lib/utils";
-import authApiRequest from "../apiRequest/auth";
+import { checkAndRefreshToken } from "@/src/lib/utils";
 
 // Những page sau sẽ ko check refresh token
 const UNAUTHENTICATED_PATH = ["/login", "/logout", "/refresh-token"];
@@ -17,44 +10,6 @@ export default function RefreshToken() {
   useEffect(() => {
     if (UNAUTHENTICATED_PATH.includes(pathname)) return;
     let interval: any = null;
-    const checkAndRefreshToken = async () => {
-      const accessToken = getAccessTokenFromLocalStorage();
-      const refreshToken = getRefreshTokenFromLocalStorage();
-      // Chưa đăng nhập thì sẽ ko cho chạy
-      if (!accessToken || !refreshToken) return;
-      const decodedAccessToken = jwt.decode(accessToken) as {
-        exp: number;
-        iat: number;
-      };
-      const decodedRefreshToken = jwt.decode(refreshToken) as {
-        exp: number;
-        iat: number;
-      };
-      // Thời điểm hết hạn của token tính theo epoch time (s)
-      // Còn khi các bnaj dùng cú pháp New Date().getTime() thì nó sẽ trả về epoch time tính theo mili giây ms
-      const now = Math.round(new Date().getTime() / 1000);
-      // Trường hợp refresh Token hết hạn thì ko xử lý nữa
-      if (decodedRefreshToken.exp < now) return;
-      // Ví dụ access token của chúng ta có thời gian hết hạn là 10s thì mình sẽ kiểm tra nếu còn 1/3 thời gian (3s) thì mình sẽ cho refresh token lại
-      // Thời gian còn lại sẽ tính dựa trên công thức: decodedAccessToken.exp - now
-      //  Thời gian hết hạn của access token dựa trên công thức: decodedAccessToken.exp - decodedAccessToken.iat
-      if (
-        decodedAccessToken.exp - now <
-        (decodedAccessToken.exp - decodedAccessToken.iat) / 3
-      ) {
-        // Gọi API refresh token
-        try {
-          const res = await authApiRequest.refreshToken();
-          if (!res) return;
-          const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
-            res.payload.data;
-          setAccessTokenToLocalStorage(newAccessToken);
-          setRefreshTokenToLocalStorage(newRefreshToken);
-        } catch (error) {
-          clearInterval(interval);
-        }
-      }
-    };
     // Phải gọi lần đầu tiên, vì interval sẽ chạy sau thời gian TIMEOUT
     checkAndRefreshToken();
     // Timeout interval phải bé hơn thời gian hết hạn của access token
