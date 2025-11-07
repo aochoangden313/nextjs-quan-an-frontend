@@ -15,7 +15,10 @@ export function middleware(request: NextRequest) {
 
   //chưa đăng nhập (không tồn tại refresh Token) thì ko cho vào private path và điều hướng về trang login
   if (privatePaths.some((path) => pathname.startsWith(path) && !refreshToken)) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    // Gửi tín hiệu cho trang Login biết rằng nó cần phải dọn dẹp local storage.
+    const url = new URL("/login", request.url);
+    url.searchParams.set("clearTokens", "true");
+    return NextResponse.redirect(url);
   }
   // Đăng nhập rồi thì sẽ không cho vào login nữa và redirect vào trang chủ
   if (unAuthPaths.some((path) => pathname.startsWith(path)) && refreshToken) {

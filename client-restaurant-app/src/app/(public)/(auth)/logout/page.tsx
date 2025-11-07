@@ -28,18 +28,49 @@ function LogoutPageContent() {
 
   // Logic logout sẽ chạy ngay khi component được tải
   useEffect(() => {
-    // --- KIỂM TRA BẢO VỆ ---
+    // code logic cũ
+    // // --- KIỂM TRA BẢO VỆ ---
+    // if (
+    //   // 1. Nếu 'cờ' đã được đặt (đang chạy rồi), thì dừng lại
+    //   ref.current ||
+    //   // 2. (Bảo mật) Nếu access/refresh token trên URL không khớp với token trong Local Storage,
+    //   //    đây là truy cập không hợp lệ (ví dụ: gõ thẳng /logout) => dừng lại.
+    //   (accessTokenFromUrl &&
+    //     accessTokenFromUrl !== getAccessTokenFromLocalStorage()) ||
+    //   (refreshTokenFromUrl &&
+    //     refreshTokenFromUrl !== getRefreshTokenFromLocalStorage())
+    // ) {
+    //   return;
+    // }
+
     if (
-      // 1. Nếu 'cờ' đã được đặt (đang chạy rồi), thì dừng lại
-      ref.current ||
-      // 2. (Bảo mật) Nếu access/refresh token trên URL không khớp với token trong Local Storage,
-      //    đây là truy cập không hợp lệ (ví dụ: gõ thẳng /logout) => dừng lại.
-      (accessTokenFromUrl &&
-        accessTokenFromUrl !== getAccessTokenFromLocalStorage()) ||
-      (refreshTokenFromUrl &&
-        refreshTokenFromUrl !== getRefreshTokenFromLocalStorage())
+      // Chỉ thực hiện khi ref.current chưa được gán (tức là chưa có mutation đang chạy)
+      !ref.current &&
+      // Có access token trong URL và token đó khớp với token đang lưu trong localStorage
+      accessTokenFromUrl &&
+      accessTokenFromUrl === getAccessTokenFromLocalStorage() &&
+      // Có refresh token trong URL và token đó khớp với token đang lưu trong localStorage
+      refreshTokenFromUrl &&
+      refreshTokenFromUrl === getRefreshTokenFromLocalStorage()
     ) {
-      return;
+      // Đánh dấu rằng mutation đang được gọi (dùng ref để tránh gọi trùng lặp)
+      ref.current = mutateAsync;
+
+      // Thực thi mutation (ví dụ gọi API để xác thực / đồng bộ trạng thái)
+      mutateAsync().then((res) => {
+        // Sau khi mutation hoàn tất, chờ 1s trước khi xóa dấu hiệu đang chạy.
+        // Việc này giúp tránh race condition nếu có nhiều lần trigger liên tiếp.
+        setTimeout(() => {
+          ref.current = null;
+        }, 1000);
+
+        // Điều hướng người dùng tới trang /login sau khi mutation thành công
+        router.push("/login");
+      });
+    } else {
+      // Nếu điều kiện không thỏa (ví dụ token không khớp hoặc đã có mutation chạy),
+      // điều hướng người dùng về trang chủ
+      router.push("/");
     }
 
     // --- THỰC THI LOGOUT ---

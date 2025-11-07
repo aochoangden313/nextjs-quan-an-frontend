@@ -23,6 +23,8 @@ function RefreshTokenContent() {
           router.push(redirectPathName || "/");
         },
       });
+    } else {
+      router.push("/");
     }
   }, [router, refreshTokenFromUrl, redirectPathName]);
 
