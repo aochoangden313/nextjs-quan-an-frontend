@@ -86,7 +86,11 @@ export const checkAndRefreshToken = async (param?: {
   };
   // Thời điểm hết hạn của token tính theo epoch time (s)
   // Còn khi các bnaj dùng cú pháp New Date().getTime() thì nó sẽ trả về epoch time tính theo mili giây ms
-  const now = Math.round(new Date().getTime() / 1000);
+  // Lưu ý để fix lỗi không redirect về trang login dù refresh token hết hạn
+  // - Không nên làm tròn giá trị khi so sánh exp
+  // - Khi set cookie với expires thì sẽ bị lệch từ 0 - 1000ms
+  // Router cache mặc định Next.js là 30s kể từ lần request đầu tiên
+  const now = new Date().getTime() / 1000 - 1;
   // Trường hợp refresh Token hết hạn thì cho logout
   if (decodedRefreshToken.exp < now) {
     removeTokensFromLocalStorage();
