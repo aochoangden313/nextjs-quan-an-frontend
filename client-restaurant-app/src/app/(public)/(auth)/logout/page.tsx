@@ -1,5 +1,6 @@
 "use client";
 
+import { useAppContext } from "@/src/components/app-provider";
 import {
   getAccessTokenFromLocalStorage,
   getRefreshTokenFromLocalStorage,
@@ -17,6 +18,7 @@ function LogoutPageContent() {
   const { mutateAsync } = useLogoutMutation();
   // Hook để điều hướng
   const router = useRouter();
+  const { setIsAuth } = useAppContext();
   // Hook để đọc tham số (query params) từ URL
   const searchParams = useSearchParams();
   // Lấy access/ refresh token từ URL (được middleware đính kèm)
@@ -63,7 +65,7 @@ function LogoutPageContent() {
         setTimeout(() => {
           ref.current = null;
         }, 1000);
-
+        setIsAuth(false);
         // Điều hướng người dùng tới trang /login sau khi mutation thành công
         router.push("/login");
       });
