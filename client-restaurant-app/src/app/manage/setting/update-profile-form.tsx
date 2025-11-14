@@ -25,7 +25,7 @@ export default function UpdateProfileForm() {
     resolver: zodResolver(UpdateMeBody),
     defaultValues: {
       name: "",
-      avatar: "",
+      avatar: undefined,
     },
   });
 
@@ -43,7 +43,7 @@ export default function UpdateProfileForm() {
       const { name, avatar } = profile;
       form.reset({
         name: name ?? "",
-        avatar: avatar ?? "",
+        avatar: avatar ?? undefined,
       });
     }
   }, [form, profile]);
