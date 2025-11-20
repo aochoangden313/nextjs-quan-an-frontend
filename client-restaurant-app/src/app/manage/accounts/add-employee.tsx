@@ -21,9 +21,15 @@ import { useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAddAccountMutation } from "@/src/queries/useAccount";
+import { useMediaMutation } from "@/src/queries/useMedia";
+import { toast } from "@/src/components/ui/use-toast";
+import { handleErrorApi } from "@/src/lib/utils";
 
 export default function AddEmployee() {
   const [file, setFile] = useState<File | null>(null);
+  const addAccountMutation = useAddAccountMutation();
+  const uploadMediaMutation = useMediaMutation();
   const [open, setOpen] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
   const form = useForm<CreateEmployeeAccountBodyType>({
@@ -38,12 +44,47 @@ export default function AddEmployee() {
   });
   const avatar = form.watch("avatar");
   const name = form.watch("name");
+
   const previewAvatarFromFile = useMemo(() => {
     if (file) {
       return URL.createObjectURL(file);
     }
     return avatar;
   }, [file, avatar]);
+
+  const reset = () => {
+    form.reset();
+    setFile(null);
+  };
+
+  const onSubmit = async (values: CreateEmployeeAccountBodyType) => {
+    if (addAccountMutation.isPending) return;
+    try {
+      let body = values;
+      if (file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        const uploadImageResult = await uploadMediaMutation.mutateAsync(
+          formData
+        );
+        const imageURL = uploadImageResult.payload.data;
+        body = {
+          ...values,
+          avatar: imageURL,
+        };
+      }
+      const result = await addAccountMutation.mutateAsync(body);
+      toast({ description: result.payload.message });
+      reset();
+      setOpen(false);
+    } catch (error) {
+      console.error("Error during submission:", error);
+      handleErrorApi({
+        error,
+        setError: form.setError,
+      });
+    }
+  };
 
   return (
     <Dialog onOpenChange={setOpen} open={open}>
@@ -67,6 +108,10 @@ export default function AddEmployee() {
             noValidate
             className="grid auto-rows-max items-start gap-4 md:gap-8"
             id="add-employee-form"
+            onSubmit={form.handleSubmit(onSubmit, (e) => {
+              console.log(e);
+            })}
+            onReset={reset}
           >
             <div className="grid gap-4 py-4">
               <FormField
