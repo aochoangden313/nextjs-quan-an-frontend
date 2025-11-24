@@ -16,6 +16,19 @@ export const useGetDishListWithPagging = () => {
   });
 };
 
+export const useGetDishQuery = ({
+  id,
+  enabled,
+}: {
+  id: number;
+  enabled: boolean;
+}) => {
+  return useQuery({
+    queryKey: ["dished", id],
+    enabled,
+  });
+};
+
 export const useAddAccountMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -36,6 +49,7 @@ export const useUpdateAccountMutation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["dishes"],
+        exact: true,
       });
     },
   });
