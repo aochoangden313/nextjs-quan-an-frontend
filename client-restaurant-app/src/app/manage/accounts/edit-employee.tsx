@@ -103,7 +103,7 @@ export default function EditEmployee({
       }
       const result = await updateAccountMutation.mutateAsync(body);
       toast({ description: result.payload.message });
-      setId(undefined);
+      reset();
       onSubmitSuccess && onSubmitSuccess();
     } catch (error) {
       console.error("Error during submission:", error);
@@ -114,12 +114,17 @@ export default function EditEmployee({
     }
   };
 
+  const reset = () => {
+    setFile(null);
+    setId(undefined);
+  };
+
   return (
     <Dialog
       open={Boolean(id)}
       onOpenChange={(value) => {
         if (!value) {
-          setId(undefined);
+          reset();
         }
       }}
     >
