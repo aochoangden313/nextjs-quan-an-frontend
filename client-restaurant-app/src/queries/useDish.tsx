@@ -1,0 +1,54 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import dishApiRequest from "../apiRequest/dish";
+import { UpdateDishBodyType } from "../schemaValidations/dish.schema";
+
+export const useGetDishList = () => {
+  return useQuery({
+    queryKey: ["dishes"],
+    queryFn: dishApiRequest.list,
+  });
+};
+
+export const useGetDishListWithPagging = () => {
+  return useQuery({
+    queryKey: ["dishes-with-pagging"],
+    queryFn: dishApiRequest.listWithPagnation,
+  });
+};
+
+export const useAddAccountMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: dishApiRequest.addDish,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["dishes"],
+      });
+    },
+  });
+};
+
+export const useUpdateAccountMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, ...body }: UpdateDishBodyType & { id: number }) =>
+      dishApiRequest.updateDish(id, body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["dishes"],
+      });
+    },
+  });
+};
+
+export const useDeleteAccountMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: dishApiRequest.deleteDish,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["dishes"],
+      });
+    },
+  });
+};
