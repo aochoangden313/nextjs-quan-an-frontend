@@ -14,6 +14,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
+import DOMPurify from "dompurify";
 
 import {
   DropdownMenu,
@@ -50,6 +51,7 @@ import AutoPagination from "@/src/components/auto-pagination";
 import { DishListResType } from "@/src/schemaValidations/dish.schema";
 import EditDish from "@/src/app/manage/dishes/edit-dish";
 import AddDish from "@/src/app/manage/dishes/add-dish";
+import { useGetDishList } from "@/src/queries/useDish";
 
 type DishItem = DishListResType["data"][0];
 
@@ -101,7 +103,9 @@ export const columns: ColumnDef<DishItem>[] = [
     header: "Mô tả",
     cell: ({ row }) => (
       <div
-        dangerouslySetInnerHTML={{ __html: row.getValue("description") }}
+        dangerouslySetInnerHTML={{
+          __html: DOMPurify.sanitize(row.getValue("description")),
+        }}
         className="whitespace-pre-line"
       />
     ),
@@ -188,7 +192,9 @@ export default function DishTable() {
   const pageIndex = page - 1;
   const [dishIdEdit, setDishIdEdit] = useState<number | undefined>();
   const [dishDelete, setDishDelete] = useState<DishItem | null>(null);
-  const data: any[] = [];
+  // dislay dish data list
+  const dishListQuery = useGetDishList();
+  const data: any[] = dishListQuery.data?.payload.data ?? [];
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
