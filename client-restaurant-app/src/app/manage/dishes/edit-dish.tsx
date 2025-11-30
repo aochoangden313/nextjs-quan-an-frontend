@@ -65,7 +65,7 @@ export default function EditDish({
       description: "",
       // allow 0 as default; schema updated to accept non-negative numbers
       price: 0,
-      image: "",
+      image: undefined,
       status: DishStatus.Unavailable,
     },
   });
@@ -107,7 +107,7 @@ export default function EditDish({
         const imageURL = uploadImageResult.payload.data;
         body = {
           ...body,
-          image: imageURL,
+          image: imageURL ?? undefined,
         };
       }
       const result = await updateDishMutation.mutateAsync(body);
@@ -259,6 +259,7 @@ export default function EditDish({
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
+                          value={field.value}
                         >
                           <FormControl>
                             <SelectTrigger>
