@@ -24,7 +24,7 @@ const dishApiRequest = {
   updateDish: (id: number, body: UpdateDishBodyType) =>
     http.put<DishResType>(`${prefix}/${id}`, body),
   // delete Delete
-  deleteDish: (id: number) => http.delete(`${prefix}/${id}`),
+  deleteDish: (id: number) => http.delete<DishResType>(`${prefix}/${id}`),
 };
 
 export default dishApiRequest;
