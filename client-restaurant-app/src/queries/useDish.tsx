@@ -25,6 +25,7 @@ export const useGetDishQuery = ({
 }) => {
   return useQuery({
     queryKey: ["dished", id],
+    queryFn: () => dishApiRequest.getDish(id),
     enabled,
   });
 };
