@@ -9,7 +9,7 @@ export const useGetTableList = () => {
   });
 };
 
-export const useGetTable = ({
+export const useGetTableQuery = ({
   id,
   enabled,
 }: {
